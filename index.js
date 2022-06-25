@@ -3,7 +3,7 @@ const express = require('express');
 const axios = require('axios').default
 const app = express();
 const cors = require('cors');
-const { json } = require('express');
+const {json} = require('express');
 const port = process.env.PORT || 3000;
 
 //Include these two lines or express will screw you
@@ -41,9 +41,9 @@ app.listen(port, () => {
 });
 
 function sendRequest(platform, songname, ar) {
-    return axios.get(`http://localhost:${port}/search?q=${platform} ${songname}`).then(json => {
+    return axios.get(`https://transpose-app.herokuapp.com/search?q=${platform} ${songname}`).then(json => {
         return json.data.items[0].link
-    }).catch(err=>{
+    }).catch(err => {
         console.log(err)
     });
 }
