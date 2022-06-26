@@ -1,6 +1,6 @@
 require('dotenv').config()
 const express = require('express');
-const { google, customsearch_v1 } = require('googleapis');
+const {google, customsearch_v1} = require('googleapis');
 
 //This will create express router instance
 const router = express.Router();
@@ -13,7 +13,7 @@ www.our-domain.com/search
     num=NumberOfResults(Cannot Exceed 10)
 */
 router.get('/search', (req, res, next) => {
-    const { q, start, num } = req.query;
+    const {q, start, num} = req.query;
     // console.log(q, start, num);
     // customsearch_v1.Resource$Cse$Siterestrict
     customsearch.cse.siterestrict.list({
@@ -21,14 +21,14 @@ router.get('/search', (req, res, next) => {
         cx: process.env.SEARCH_ENGINE_ID,
         q, start, num,
     }).then(result => result.data)
-    .then((result) => {
-            const { queries, items, searchInformation } = result;
+        .then((result) => {
+            const {queries, items, searchInformation} = result;
 
             const page = (queries.request || [])[0] || {};
             const previousPage = (queries.previousPage || [])[0] || {};
             const nextPage = (queries.nextPage || [])[0] || {};
 
-             const data = {
+            const data = {
                 q,
                 totalResults: page.totalResults,
                 count: page.count,
@@ -45,9 +45,12 @@ router.get('/search', (req, res, next) => {
             // res.status(200).send(result);
             res.status(200).send(data);
         })
-        .catch((err) => {
-            console.log(err);
-            res.status(500).send(err);
+        .catch((error) => {
+            if (error.response) {
+                // console.log(error.response.status);
+                res.status(error.response.status).send("API Error");
+            }
+
         });
 
 

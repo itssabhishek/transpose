@@ -24,27 +24,43 @@ app.post('/sendsongname', async function (req, response) {
     chossen_platforms = req.body.platforms
     for (const platform of chossen_platforms) {
         const songLink = await sendRequest(platform, req.body.songname, song_links)
-        const songOBJ = {
-            platform: platform, link: songLink
+        if (songLink === "API Quota Problems") {
+            const obj = {
+                error: "API Quota Problems"
+            }
+            song_links.push(obj)
+            break;
+        } else {
+            const songOBJ = {
+                platform: platform, link: songLink
+            }
+            song_links.push(songOBJ)
         }
-        song_links.push(songOBJ)
 
     }
     response.setHeader('Content-Type', 'application/json');
     response.send(song_links)
-    console.log(song_links)
+    // console.log(song_links)
 });
 
 
-app.listen(port, () => {
-    console.log(`Server is running on port: ${port}`);
-});
+// app.listen(port, () => {
+//     console.log(`Server is running on port: ${port}`);
+// });
 
 function sendRequest(platform, songname, ar) {
     return axios.get(`https://transpose-app.herokuapp.com/search?q=${platform} ${songname}`).then(json => {
-        return json.data.items[0].link
-    }).catch(err => {
-        console.log(err)
+        if (!json.data[0].link) {
+            return json.data.items[0].link
+        }
+    }).catch(error => {
+        if (error.response) {
+            console.log("Catch block in backend index");
+            // console.log(error.response.data);
+            if (error.response.status === 429) {
+                return "API Quota Problems"
+            }
+        }
     });
 }
 
